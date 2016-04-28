@@ -11,25 +11,21 @@ var htmlmin = require('gulp-html-minifier');
 var inlinesource = require('gulp-inline-source');
 
 gulp.task('default', [
-	'copy-html',
-	'copy-images', 
-	'styles', 
-	'lint',
-	'scripts'],
+	'lint'],
 	function() {
-	gulp.watch('src/sass/**/*.scss', ['styles'])
+	gulp.watch('src/**/*.css')
 		.on('change', browserSync.reload);
 	gulp.watch('src/js/**/*.js', ['lint', 'scripts'])
 		.on('change', browserSync.reload);
-	gulp.watch('src/index.html', ['copy-html'])
+	gulp.watch('src/index.html')
 		.on('change', browserSync.reload);
 
 	browserSync.init({
-		server: './dist'
+		server: './src'
 	});
 });
 
-gulp.task('styles', function() {
+gulp.task('styles-copy', function() {
 	gulp.src('src/**/*.scss')
 		.pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
 		.pipe(autoprefixer({
@@ -85,7 +81,7 @@ gulp.task('scripts', function() {
 gulp.task('dist', [
 	'copy-html',
 	'copy-images',
-	'styles',
+	'styles-copy',
 	'lint',
 	'scripts',
 ]);
