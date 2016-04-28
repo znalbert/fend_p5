@@ -25,7 +25,7 @@ gulp.task('default', [
 	});
 });
 
-gulp.task('styles-copy', function() {
+gulp.task('copy-styles', function() {
 	gulp.src('src/**/*.scss')
 		.pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
 		.pipe(autoprefixer({
@@ -54,8 +54,8 @@ gulp.task('lint', function () {
 gulp.task('copy-html', function() {
 	gulp.src('src/**/*.html')
 		.pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
-		.pipe(inlinesource())
 		.pipe(gulp.dest('./dist'))
+		.pipe(inlinesource())
 });
 
 gulp.task('copy-images', function() {
@@ -67,17 +67,17 @@ gulp.task('copy-images', function() {
 		.pipe(gulp.dest('dist/'));
 });
 
-gulp.task('scripts-copy', function() {
+gulp.task('copy-scripts', function() {
 	gulp.src('src/js/**/*.js')
-		.pipe(concat('all.min.js'))
+		//.pipe(concat('all.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('dist', [
-	'copy-html',
 	'copy-images',
-	'styles-copy',
+	'copy-styles',
 	'lint',
-	'scripts-copy',
+	'copy-scripts',
+	'copy-html'
 ]);
