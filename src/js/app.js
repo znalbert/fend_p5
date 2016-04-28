@@ -28,7 +28,7 @@ function geocodeNewCity(geocoder, resultsMap) {
 	});
 }
 
-function getLocation() {
+function getGeoLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
 			coords.lat = position.coords.latitude;
@@ -56,9 +56,6 @@ function getLocationManually() {
 	});
 }
 
-getLocation();
-// $('#floating-panel').submit(getCityManual);
-document.getElementById('submit-city').addEventListener('click', function() {
-	getLocationManually();
-});
+getGeoLocation();
+$('#getCity').submit(getLocationManually);
 

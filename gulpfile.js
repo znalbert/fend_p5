@@ -15,7 +15,7 @@ gulp.task('default', [
 	function() {
 	gulp.watch('src/**/*.css')
 		.on('change', browserSync.reload);
-	gulp.watch('src/js/**/*.js', ['lint', 'scripts'])
+	gulp.watch('src/js/**/*.js', ['lint'])
 		.on('change', browserSync.reload);
 	gulp.watch('src/index.html')
 		.on('change', browserSync.reload);
@@ -67,15 +67,11 @@ gulp.task('copy-images', function() {
 		.pipe(gulp.dest('dist/'));
 });
 
-gulp.task('scripts', function() {
+gulp.task('scripts-copy', function() {
 	gulp.src('src/js/**/*.js')
 		.pipe(concat('all.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/js'));
-	gulp.src('src/views/js/**/*.js')
-		.pipe(concat('all.min.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/views/js'));
 });
 
 gulp.task('dist', [
@@ -83,5 +79,5 @@ gulp.task('dist', [
 	'copy-images',
 	'styles-copy',
 	'lint',
-	'scripts',
+	'scripts-copy',
 ]);
