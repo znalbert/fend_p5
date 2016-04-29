@@ -7,10 +7,16 @@
 		<link href="css/style.css" rel="stylesheet" inline>
   </head>
   <body>
-    <form id="getCity">
+
+		<form id="getCity">
       <input id="city" type="textbox" placeholder="Enter your city...">
       <input id="submit-city" type="button" value="Go">
     </form>
+		
+		<ul data-bind="foreach: eventList" id="venue-list">
+			<li data-bind="text: $data.venue"></li>
+		</ul>
+
     <div id="map"></div>
 		<script src="js/libs/jquery-2.2.3.min.js" inline></script>
 		<script src="js/libs/knockout-3.4.0.js" inline></script>
