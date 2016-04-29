@@ -68,11 +68,6 @@ function getEvents() {
 
 	var efUrl = efApi + efKey + efSort + efInclude + efLocation;
 	
-	console.log(coords.lat);
-	console.log(efUrl);
-	// $.getJSON(efUrl, function( data ) {
-	// 	console.log(data);
-	// });
 	$.ajax({
 		url: efUrl,
 		dataType: "jsonp",
