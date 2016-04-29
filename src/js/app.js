@@ -35,14 +35,15 @@ function getGeoLocation() {
 			coords.lng = position.coords.longitude;
 
 			initMap();
+			getEvents();
 		})
 	}
 }
 
 function getLocationManually() {
-	var geocodeApiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAZKV6_aryLoI5q40ikKRJ_Qy-32Hg-3ng&address=";
+	var geocodeApi = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAZKV6_aryLoI5q40ikKRJ_Qy-32Hg-3ng&address=";
 	var city = $('#city').val();
-	var geocodeUrl = geocodeApiUrl + city;
+	var geocodeUrl = geocodeApi + city;
 
 	console.log(city);
 	console.log(geocodeUrl);
@@ -53,9 +54,37 @@ function getLocationManually() {
 		coords.lng = pos.lng;
 		
 		initMap();
+		getEvents();
+	});
+}
+
+function getEvents() {
+	// API for events is coming from eventful.com
+	var efApi = "http://api.eventful.com/json/events/search?app_key=";
+	var efKey = "VN3TDSXzQdSQK2rD";
+	var efSort = "&date=Today&sort_order=popularity&within=25";
+	var efInclude = "&include=categories,subcategories,popularity";
+	var efLocation = "&location=" + coords.lat + "," + coords.lng;
+
+	var efUrl = efApi + efKey + efSort + efInclude + efLocation;
+	
+	console.log(coords.lat);
+	console.log(efUrl);
+	// $.getJSON(efUrl, function( data ) {
+	// 	console.log(data);
+	// });
+	$.ajax({
+		url: efUrl,
+		dataType: "jsonp",
+		success: function( data ) {
+			console.log(data);
+		}
 	});
 }
 
 getGeoLocation();
-$('#getCity').submit(getLocationManually);
+// $('#getCity').submit(getLocationManually);
+document.getElementById('submit-city').addEventListener('click', function() {
+	getLocationManually();
+});
 
