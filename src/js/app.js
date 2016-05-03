@@ -1,6 +1,15 @@
 var Event = function(data) {
 	this.title = ko.observable(data.title);
 	this.venue = ko.observable(data.venue_name);
+	this.url = ko.observable(data.url);
+	this.venue_url = ko.observable(data.venue_url);
+	this.venue_address = ko.observable(data.venue_address);
+	this.city_name = ko.observable(data.city_name);
+	this.state = ko.observable(data.region_name);
+	this.lat = ko.observable(data.latitude);
+	this.lng = ko.observable(data.longitude);
+	this.image = ko.observable(data.image.medium.url);
+	this.category = ko.observable(data.categories.category.id);
 }
 
 var ViewModel = function() {
@@ -37,7 +46,7 @@ var ViewModel = function() {
 				coords.lng = position.coords.longitude;
 
 				initMap();
-				getEvents();
+				getEvents(1);
 			})
 		}
 	}
@@ -57,19 +66,20 @@ var ViewModel = function() {
 			coords.lng = pos.lng;
 			
 			initMap();
-			getEvents();
+			getEvents(1);
 		});
 	}
 
-	function getEvents() {
+	function getEvents(page_number) {
 		// API for events is coming from eventful.com
 		var efApi = "http://api.eventful.com/json/events/search?app_key=";
 		var efKey = "VN3TDSXzQdSQK2rD";
 		var efSort = "&date=Today&sort_order=popularity&within=20";
-		var efInclude = "&include=categories,subcategories,popularity";
+		var efInclude = "&include=categories,popularity";
 		var efLocation = "&location=" + coords.lat + "," + coords.lng;
+		var efPageNum = "&page_number=" + page_number;
 
-		var efUrl = efApi + efKey + efSort + efInclude + efLocation;
+		var efUrl = efApi + efKey + efSort + efInclude + efPageNum + efLocation;
 		
 		$.ajax({
 			url: efUrl,
