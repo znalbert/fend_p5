@@ -9,21 +9,21 @@ var Event = function(data) {
 	this.lat = ko.observable(data.latitude);
 	this.lng = ko.observable(data.longitude);
 	// this.image = ko.observable(data.image.medium.url);
-	this.category = ko.observable(data.categories.category.id);
+	this.category = ko.observable(data.categories.category[0].id);
 }
 
 var ViewModel = function() {
 	var self = this;
 
-	this.eventList = ko.observableArray([]);
+	self.eventList = ko.observableArray([]);
 
-	var map;
-	var coords = {};
+	// var map;
+	self.coords = {};
 
-	function initMap() {
+	self.map = function () {
 		map = new google.maps.Map(document.getElementById('map'), {
-			center: coords,
-			zoom: 13,
+			center: self.coords,
+			zoom: 10,
 			disableDefaultUI: true
 		});
 	}
@@ -39,22 +39,23 @@ var ViewModel = function() {
 	// 	});
 	// }
 
-	function getGeoLocation() {
+	self.getGeoLocation = function() {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position) {
-				coords.lat = position.coords.latitude;
-				coords.lng = position.coords.longitude;
+				self.coords.lat = position.coords.latitude;
+				self.coords.lng = position.coords.longitude;
 
-				initMap();
-				getEvents(1);
+				self.map();
+				self.getEvents(1);
 			})
 		}
 	}
 
-	function getLocationManually() {
-		var geocodeApi = "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyAZKV6_aryLoI5q40ikKRJ_Qy-32Hg-3ng&address=";
-		var city = $('#city').val();
-		var geocodeUrl = geocodeApi + city;
+	self.getLocationManually = function() {
+		var gcApi = "https://maps.googleapis.com/maps/api/geocode/json?";
+		var gcKey = "key=AIzaSyAZKV6_aryLoI5q40ikKRJ_Qy-32Hg-3ng&address=";
+		var gcCity = $('#city').val();
+		var geocodeUrl = gcApi + gcKey + gcCity;
 
 		self.eventList([]);
 		console.log(city);
@@ -62,40 +63,40 @@ var ViewModel = function() {
 
 		$.getJSON(geocodeUrl, function( data ) {
 			pos = data.results[0].geometry.location;
-			coords.lat = pos.lat;
-			coords.lng = pos.lng;
+			self.coords.lat = pos.lat;
+			self.coords.lng = pos.lng;
 			
-			initMap();
-			getEvents(1);
+			self.map();
+			self.getEvents(1);
 		});
 	}
 
-	function getEvents(page_number) {
+	self.getEvents = function(page_number) {
 		// API for events is coming from eventful.com
 		var efApi = "https://api.eventful.com/json/events/search?app_key=";
 		var efKey = "VN3TDSXzQdSQK2rD";
 		var efSort = "&date=Today&sort_order=popularity&within=20";
 		var efInclude = "&include=categories,popularity";
-		var efLocation = "&location=" + coords.lat + "," + coords.lng;
+		var efLocation = "&location=" + self.coords.lat + "," + self.coords.lng;
 		var efPageNum = "&page_number=" + page_number;
 
 		var efUrl = efApi + efKey + efSort + efInclude + efPageNum + efLocation;
-		
+		console.log(efUrl);
 		$.ajax({
 			url: efUrl,
 			dataType: "jsonp",
 			success: function( data ) {
 				console.log(data);
 
-				data.events.event.forEach(eventViews);
+				data.events.event.forEach(self.eventViews);
 			}
 		});
 	}
 
-	function eventViews(eventObject, index, eventArray) {
+	self.eventViews = function(eventObject, index, eventArray) {
 		self.eventList.push( new Event(eventObject));
-
-		console.log(eventObject.venue_name + ", " + eventObject.title);
+		console.log(self.eventList());
+		// console.log(eventObject.venue_name + ", " + eventObject.title);
 		
 		var myLatlng = {
 			lat: Number(eventObject.latitude),
@@ -113,11 +114,13 @@ var ViewModel = function() {
 		marker.setMap(map);
 	}
 
-	getGeoLocation();
+	// getGeoLocation();
 	// $('#getCity').submit(getLocationManually);
 	document.getElementById('submit-city').addEventListener('click', function() {
-		getLocationManually();
+		self.getLocationManually();
 	});
+
+	self.getGeoLocation();
 }
 
 ko.applyBindings(new ViewModel());
