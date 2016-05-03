@@ -8,7 +8,7 @@ var Event = function(data) {
 	this.state = ko.observable(data.region_name);
 	this.lat = ko.observable(data.latitude);
 	this.lng = ko.observable(data.longitude);
-	this.image = ko.observable(data.image.medium.url);
+	// this.image = ko.observable(data.image.medium.url);
 	this.category = ko.observable(data.categories.category.id);
 }
 
@@ -72,7 +72,7 @@ var ViewModel = function() {
 
 	function getEvents(page_number) {
 		// API for events is coming from eventful.com
-		var efApi = "http://api.eventful.com/json/events/search?app_key=";
+		var efApi = "https://api.eventful.com/json/events/search?app_key=";
 		var efKey = "VN3TDSXzQdSQK2rD";
 		var efSort = "&date=Today&sort_order=popularity&within=20";
 		var efInclude = "&include=categories,popularity";
