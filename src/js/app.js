@@ -17,10 +17,14 @@ var ViewModel = function() {
 	var infowindow;
 	self.eventList = ko.observableArray([]);
 	self.markerList = ko.observableArray([]);
-	self.infoList = ko.observableArray([]);
 	self.coords = {};
 	self.bounds = new google.maps.LatLngBounds();
 	self.pageNumber = ko.observable(1);
+	self.filter = ko.observable('');
+	self.pageCount = ko.observable('');
+	self.prevBtn = ko.observable(false);
+	self.nextBtn = ko.observable(true);
+	self.showEventNav = ko.observable(false);
 
 	// Determine user coords with geolocation or manually.
 	// Geolocation method
@@ -31,7 +35,7 @@ var ViewModel = function() {
 				self.coords.lng = position.coords.longitude;
 
 				self.map();
-				self.getEvents(self.pageNumber);
+				self.getEvents(self.pageNumber());
 			})
 		}
 	}
@@ -44,8 +48,8 @@ var ViewModel = function() {
 		var geocodeUrl = gcApi + gcKey + gcCity;
 
 		self.bounds = new google.maps.LatLngBounds();
-		self.eventList([]);
-		self.markerList([]);
+		// self.eventList([]);
+		// self.markerList([]);
 
 		$.getJSON(geocodeUrl, function( data ) {
 			pos = data.results[0].geometry.location;
@@ -53,7 +57,7 @@ var ViewModel = function() {
 			self.coords.lng = pos.lng;
 			
 			self.map();
-			self.getEvents(self.pageNumber);
+			self.getEvents(self.pageNumber());
 		});
 	}
 
@@ -84,14 +88,46 @@ var ViewModel = function() {
 			url: efUrl,
 			dataType: "jsonp",
 			success: function( data ) {
+				self.eventList([]);
+				self.markerList([]);
 				console.log(data);
+				// self.filteredEvents([]);
+				self.pageCount(data.page_count);
+				if (self.pageCount() > 1) {
+					self.showEventNav(true);
+				}
+				console.log(self.pageCount());
+				console.log(self.showEventNav());
 				data.events.event.forEach(self.eventView);
-				console.log(self.eventList());
+
+				// console.log(self.eventList());
 				self.eventList().forEach(self.createMarker);
 			}
 			
 		});
 	}
+
+	self.getNextEvents = function() {
+		// self.markerList([]);
+		self.map();
+		self.pageNumber(self.pageNumber() + 1);
+		self.getEvents(self.pageNumber());
+		self.prevBtn(true);
+		if (self.pageNumber() == self.pageCount()){
+			self.nextBtn(false);
+		}
+	}
+
+	self.getPrevEvents = function() {
+		// self.markerList([]);
+		self.map();
+		self.pageNumber(self.pageNumber() - 1);
+		self.getEvents(self.pageNumber());
+		if (self.pageNumber == 1){
+			self.prevBtn(false);
+		}
+	}
+
 
 	self.eventView = function(eventObject, index, eventArray) {
 		self.eventList.push( new Event(eventObject));
@@ -121,7 +157,13 @@ var ViewModel = function() {
 
 		google.maps.event.addListener(marker, 'click', function() {
 			var thisMarker = this;
-			infowindow.setContent(event.title() + "<br>" + event.category());
+			console.log(self.filteredEvents());
+			infowindow.setContent(
+				event.title() + "<br>" + 
+				event.category() + "<br>" +
+				"<a href=" + event.url() + ">Link</a>"
+			);
+
 			infowindow.open(map, thisMarker);
 			map.panTo(thisMarker.position);
 		});
@@ -139,8 +181,25 @@ var ViewModel = function() {
 		google.maps.event.trigger(this, 'click')
 	};
 
-	document.getElementById('submit-city').addEventListener('click', function() {
-		self.getLocationManually();
+
+	self.filteredEvents = ko.computed(function() {
+		return ko.utils.arrayFilter(self.markerList(), function(marker) {
+			return marker.title.toLowerCase().indexOf(
+				self.filter().toLowerCase()) !== -1;
+		});
+	}, self);
+
+
+	self.filteredEvents.subscribe(function() {
+		var filtered = ko.utils.compareArrays(
+			self.markerList(), self.filteredEvents());
+		ko.utils.arrayForEach(filtered, function(marker) {
+			if (marker.status === 'deleted') {
+				marker.value.setMap(null);
+			} else {
+				marker.value.setMap(map);
+			}
+		});
 	});
 
 	self.getGeoLocation();
