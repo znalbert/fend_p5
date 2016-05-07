@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Simple Map</title>
-    <meta name="viewport" content="initial-scale=1.0">
-    <meta charset="utf-8">
+	<head>
+		<title>What's Going On...?</title>
+		<meta name="viewport" content="initial-scale=1.0">
+		<meta charset="utf-8">
 		<link href="css/style.css" rel="stylesheet" inline>
-  </head>
-  <body>
+	</head>
+	<body>
 
-		<form id="getCity">
-      <input id="city" type="textbox" placeholder="Enter your city...">
-      <input id="submit-city" type="button" value="Go" data-bind="click:getLocationManually">
-    </form>
-		<div id="event-list">
-			<input id="filter" type="textbox" data-bind="textInput: filter" placeholder="Filter Venues...">
-			<ul data-bind="foreach: filteredEvents" id="venue-list">
-				<li data-bind="text: title, click: $parent.moveToMarker"></li>
-			</ul>
-			<div id="eventNav" data-bind="visible: showEventNav">
-				<input id="previous" type="button" data-bind="enable: prevBtn, click: getPrevEvents, " value="<<">
-				Page <span data-bind="text: pageNumber"></span> 
-				of <span data-bind="text: pageCount"></span>
-				<input id="next" type="button" data-bind="enable: nextBtn, click: getNextEvents" value=">>">
+		<!-- Form for changing the user's location -->
+		<div id="changeCity">
+			<form id="getCity" data-bind="visible: needCoords">
+				<input id="city" type="textbox" placeholder="Enter your city...">
+				<input id="submit-city" type="button" value="Go" data-bind="click:getLocationManually">
+			</form>
+			<span data-bind="click: changeCity" id="changeLoc">Change Location</span>
+		</div>
+
+		<!-- List of venues and events -->
+		<div id="eventMenu">
+			<input type="button" data-bind="click: openCloseEvents" id="eventBtn" value="+">
+			<div id="event-list" data-bind="visible: eventVis">
+				<input id="filter" type="textbox" data-bind="textInput: filter" placeholder="Filter Venues...">
+				<ul data-bind="foreach: filteredEvents" id="venue-list">
+					<li data-bind="html: title, click: $parent.moveToMarker" class="event"></li>
+				</ul>
+				<div id="eventNav" data-bind="visible: showEventNav">
+					<input id="previous" type="button" data-bind="enable: prevBtn, click: getPrevEvents, " value="<">
+					Page <span data-bind="text: pageNumber"></span> 
+					of <span data-bind="text: pageCount"></span>
+					<input id="next" type="button" data-bind="enable: nextBtn, click: getNextEvents" value=">">
+				</div>
 			</div>
 		</div>
-    <div id="map"></div>
+
+
+		<div id="map"></div>
 		<script src="js/libs/jquery-2.2.3.min.js" inline></script>
 		<script src="js/libs/knockout-3.4.0.js" inline></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFrRhxyJYPCB01qMXi3zyNTXERl0ArxsQ"></script>
-    <script src="js/app.js" inline></script>
-  </body>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFrRhxyJYPCB01qMXi3zyNTXERl0ArxsQ"></script>
+		<script src="js/app.js" inline></script>
+	</body>
 </html>

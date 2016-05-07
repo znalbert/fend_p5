@@ -2,13 +2,11 @@ var Event = function(data) {
 	this.title = ko.observable(data.title);
 	this.venue = ko.observable(data.venue_name);
 	this.url = ko.observable(data.url);
-	this.venue_url = ko.observable(data.venue_url);
 	this.venue_address = ko.observable(data.venue_address);
 	this.city_name = ko.observable(data.city_name);
 	this.state = ko.observable(data.region_name);
 	this.lat = ko.observable(data.latitude);
 	this.lng = ko.observable(data.longitude);
-	// this.image = ko.observable(data.image.medium.url);
 	this.category = ko.observable(data.categories.category[0].name);
 }
 
@@ -25,6 +23,10 @@ var ViewModel = function() {
 	self.prevBtn = ko.observable(false);
 	self.nextBtn = ko.observable(true);
 	self.showEventNav = ko.observable(false);
+	self.needCoords = ko.observable(true);
+	self.eventVis = ko.observable(true);
+	self.windowSize = window.innerWidth;
+
 
 	// Determine user coords with geolocation or manually.
 	// Geolocation method
@@ -33,6 +35,7 @@ var ViewModel = function() {
 			navigator.geolocation.getCurrentPosition(function(position) {
 				self.coords.lat = position.coords.latitude;
 				self.coords.lng = position.coords.longitude;
+				self.needCoords(false);
 
 				self.map();
 				self.getEvents(self.pageNumber());
@@ -48,8 +51,6 @@ var ViewModel = function() {
 		var geocodeUrl = gcApi + gcKey + gcCity;
 
 		self.bounds = new google.maps.LatLngBounds();
-		// self.eventList([]);
-		// self.markerList([]);
 
 		$.getJSON(geocodeUrl, function( data ) {
 			pos = data.results[0].geometry.location;
@@ -83,32 +84,28 @@ var ViewModel = function() {
 		var efPageNum = "&page_number=" + page_number;
 
 		var efUrl = efApi + efKey + efSort + efInclude + efPageNum + efLocation;
-		console.log(efUrl);
 		$.ajax({
 			url: efUrl,
 			dataType: "jsonp",
 			success: function( data ) {
 				self.eventList([]);
 				self.markerList([]);
-				console.log(data);
-				// self.filteredEvents([]);
+
 				self.pageCount(data.page_count);
 				if (self.pageCount() > 1) {
 					self.showEventNav(true);
 				}
-				console.log(self.pageCount());
-				console.log(self.showEventNav());
 				data.events.event.forEach(self.eventView);
 
-				// console.log(self.eventList());
 				self.eventList().forEach(self.createMarker);
 			}
 			
 		});
 	}
 
+	// Allows the user to reload the map with the next 10 events happening
+	// in their area
 	self.getNextEvents = function() {
-		// self.markerList([]);
 		self.map();
 		self.pageNumber(self.pageNumber() + 1);
 		self.getEvents(self.pageNumber());
@@ -118,8 +115,8 @@ var ViewModel = function() {
 		}
 	}
 
+	// Same as above, but goes back to the previous 10 events
 	self.getPrevEvents = function() {
-		// self.markerList([]);
 		self.map();
 		self.pageNumber(self.pageNumber() - 1);
 		self.getEvents(self.pageNumber());
@@ -129,6 +126,8 @@ var ViewModel = function() {
 	}
 
 
+	// Creates new Event objects from the Event model, and updates the bounds
+	// of the map
 	self.eventView = function(eventObject, index, eventArray) {
 		self.eventList.push( new Event(eventObject));
 
@@ -142,6 +141,8 @@ var ViewModel = function() {
 		map.fitBounds(self.bounds);
 	}
 
+
+	// Creates the markers for the events
 	self.createMarker = function(event, index, events) {
 		var pos = new google.maps.LatLng(
 			event.lat(),
@@ -151,13 +152,13 @@ var ViewModel = function() {
 		var marker = new google.maps.Marker({
 			position: pos,
 			map: map,
-			title: event.venue(),
+			title: event.title() + "<br><span class='venue'>" +
+				event.venue() + "</span>",
 			animation: google.maps.Animation.DROP
 		});
 
 		google.maps.event.addListener(marker, 'click', function() {
 			var thisMarker = this;
-			console.log(self.filteredEvents());
 			infowindow.setContent(
 				event.title() + "<br>" + 
 				event.category() + "<br>" +
@@ -174,14 +175,18 @@ var ViewModel = function() {
 		})
 
 		self.markerList.push(marker);
+		marker.setMap(map);
 	}
 
 
+	// Centers the map over a marker that has been clicked from the list or
+	// the marker itself.
 	self.moveToMarker = function() {
 		google.maps.event.trigger(this, 'click')
 	};
 
 
+	// Filtering functions to only see items pertinent to what the user types
 	self.filteredEvents = ko.computed(function() {
 		return ko.utils.arrayFilter(self.markerList(), function(marker) {
 			return marker.title.toLowerCase().indexOf(
@@ -201,6 +206,35 @@ var ViewModel = function() {
 			}
 		});
 	});
+
+	
+	// Shows or hides the input box to change the user location
+	self.changeCity = function() {
+		if (self.needCoords()){
+			self.needCoords(false);
+		} else if (self.coords !== {}) {
+			self.needCoords(true);
+		}
+	}
+
+
+	// Shows or hides the event list.
+	self.openCloseEvents = function() {
+		if (self.eventVis()){
+			self.eventVis(false);
+		} else {
+			self.eventVis(true);
+		}
+	}
+
+
+	// Checks for small screen size and auto-hides the event list.
+	self.checkMobile = function(){
+		if (self.windowSize < 600) {
+			self.eventVis(false);
+		}
+	}();
+
 
 	self.getGeoLocation();
 }
