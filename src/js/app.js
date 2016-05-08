@@ -53,12 +53,18 @@ var ViewModel = function() {
 		self.bounds = new google.maps.LatLngBounds();
 
 		$.getJSON(geocodeUrl, function( data ) {
+			console.log("Geocode gtg");
+		})
+		.done(function(data){
 			pos = data.results[0].geometry.location;
 			self.coords.lat = pos.lat;
 			self.coords.lng = pos.lng;
 			
 			self.map();
-			self.getEvents(self.pageNumber());
+			self.getEvents(self.pageNumber());;
+		})
+		.fail(function(){
+			console.log("fail");
 		});
 	}
 
@@ -98,6 +104,9 @@ var ViewModel = function() {
 				data.events.event.forEach(self.eventView);
 
 				self.eventList().forEach(self.createMarker);
+			},
+			fail: function (data) {
+				console.log("fail");
 			}
 			
 		});

@@ -83,3 +83,20 @@ html, body {
 	font-size: .8em;
 	padding: 1px 3px;
 }
+
+#error {
+	position: absolute;
+	z-index: 10;
+	left: 50%;
+	top: 50%;
+	-ms-transform: translateX(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	width: 250px;
+	height: 150px;
+	margin: 20px;
+	padding: 40px;
+	background: rgba(250, 250, 250, 0.7);
+	border: 1px solid;
+	display: none;
+}

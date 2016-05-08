@@ -79,7 +79,10 @@ gulp.task('dist', [
 	'copy-styles',
 	'lint',
 	'copy-scripts',
-	'copy-html'],
+	'copy-html']
+);
+
+gulp.task('distserve', ['dist'],
 	function (){
 		browserSync.init({
 			server: './dist'
