@@ -197,10 +197,14 @@ var ViewModel = function() {
 	}
 
 
-	// Centers the map over a marker that has been clicked from the list or
-	// the marker itself.
+	// Binds to the events in the event list view so that they can trigger
+	// 'click' events on markers and closes the event list on mobile after
+	// a click.
 	self.moveToMarker = function() {
 		google.maps.event.trigger(this, 'click')
+		if (self.windowSize < 650) {
+			self.eventVis(false);
+		}
 	};
 
 
@@ -248,7 +252,7 @@ var ViewModel = function() {
 
 	// Checks for small screen size and auto-hides the event list.
 	self.checkMobile = function(){
-		if (self.windowSize < 600) {
+		if (self.windowSize < 650) {
 			self.eventVis(false);
 		}
 	}();

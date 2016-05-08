@@ -10,7 +10,12 @@ Once the app has your location it will query eventful.com for events happening t
 
 ## Serve Locally
 
-If you prefer if you prefer to serve this locally and already have gulp, you can get up and running immediately after cloning this repo by running `gulp` or `gulp distserve` in this repo's directory. Unless you make changes to the `src/` I'd recommend just running it with `gulp`.
+If you prefer if you prefer to serve this locally and already have gulp and npm, you can get up and running immediately after cloning this repo by running `npm install` to install the dependencies and then run `gulp` or `gulp distserve` in this repo's directory. Unless you make changes to the `src/` I'd recommend just running it with `gulp`.
+
+To serve locally:
+1. Clone the repo
+2. `npm install` in the repo's directory to get dependencies.
+3. `gulp`
 
 ## Future Plans
 
