@@ -54,8 +54,8 @@ gulp.task('lint', function () {
 gulp.task('copy-html', function() {
 	gulp.src('src/**/*.html')
 		.pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
+		// .pipe(inlinesource())
 		.pipe(gulp.dest('./dist'))
-		.pipe(inlinesource())
 });
 
 gulp.task('copy-images', function() {
