@@ -52,10 +52,7 @@ var ViewModel = function() {
 
 		self.bounds = new google.maps.LatLngBounds();
 
-		$.getJSON(geocodeUrl, function( data ) {
-			console.log("Geocode gtg");
-		})
-		.done(function(data){
+		$.getJSON(geocodeUrl, function(data){
 			pos = data.results[0].geometry.location;
 			self.coords.lat = pos.lat;
 			self.coords.lng = pos.lng;
@@ -64,7 +61,9 @@ var ViewModel = function() {
 			self.getEvents(self.pageNumber());;
 		})
 		.fail(function(){
-			console.log("fail");
+			$("#error").css("display","block");
+			$("#error").text("Something went wrong. " +
+							"Please check your connection and try again.");
 		});
 	}
 
@@ -76,7 +75,8 @@ var ViewModel = function() {
 			disableDefaultUI: true
 		});
 		infowindow = new google.maps.InfoWindow({
-			content: null
+			content: null,
+			maxWidth: 300
 		})
 	}
 
@@ -104,11 +104,13 @@ var ViewModel = function() {
 				data.events.event.forEach(self.eventView);
 
 				self.eventList().forEach(self.createMarker);
-			},
-			fail: function (data) {
-				console.log("fail");
 			}
-			
+		})
+		.fail(function(){
+			$("#error").css("display","block");
+			$("#error").text("Something went wrong. " +
+							"Unable to get data from Eventful.com. " +
+							"Please try again later.");
 		});
 	}
 
@@ -158,21 +160,28 @@ var ViewModel = function() {
 			event.lng()
 		);
 
+		var title = event.title() + "<br><span class='venue'>" +
+				event.venue() + "</span>"
+
 		var marker = new google.maps.Marker({
 			position: pos,
 			map: map,
-			title: event.title() + "<br><span class='venue'>" +
-				event.venue() + "</span>",
+			title: title,
 			animation: google.maps.Animation.DROP
+
 		});
+
+		var content = event.title() + "<br><span class='category'>" +
+				event.category() + "</span><br>" +
+				event.venue_address() + "<br>" +
+				event.city_name() + "<br>" +
+				event.state() + "<br>" +
+				"<a href=" + event.url() + ">More info</a>"
+
 
 		google.maps.event.addListener(marker, 'click', function() {
 			var thisMarker = this;
-			infowindow.setContent(
-				event.title() + "<br>" + 
-				event.category() + "<br>" +
-				"<a href=" + event.url() + ">Link</a>"
-			);
+			infowindow.setContent(content);
 
 			infowindow.open(map, thisMarker);
 			map.panTo(thisMarker.position);
